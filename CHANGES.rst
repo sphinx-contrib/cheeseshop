@@ -3,6 +3,7 @@ tip
 
 * Fix JavaScript to work with Chrome.
 
+* Support installation with Python 3.
 
 Release 0.2
 ===========
