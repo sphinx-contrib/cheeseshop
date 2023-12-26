@@ -1,9 +1,10 @@
-tip
-===
+Release 0.3
+===========
 
 * Fix JavaScript to work with Chrome.
-
-* Support installation with Python 3.
+* Drop support for Python 3.6 and earlier.
+* Drop support for Sphinx 3 and earlier.
+* Use flit as a build-backend.
 
 Release 0.2
 ===========
