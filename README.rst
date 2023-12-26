@@ -5,7 +5,7 @@ The Cheese Shop Sphinx extension
    Ah! We do have some Camembert, sir...
 
 This extension adds directives for easy linking to Cheese Shop (Python Package
-Index) packages.  It requires Sphinx 1.0.
+Index) packages.  It requires Sphinx 4.0.
 
    It's a bit runny, sir...
 
@@ -36,7 +36,7 @@ The ``pypi`` role links to a package.  Use it in one of these forms::
    :pypi:`the Sphinx package <Sphinx (0.6)>`  -- dito, with explicit title
 
 This extension also adds a ``cheeseshop_url`` config value, which defaults to
-``'http://pypi.python.org/pypi'`` and is used to build URLs to the Cheese Shop.
+``'http://pypi.org/project'`` and is used to build URLs to the Cheese Shop.
 
 Have fun!
 

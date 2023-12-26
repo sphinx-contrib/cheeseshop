@@ -1,27 +1,24 @@
-# -*- coding: utf-8 -*-
-"""
-    sphinxcontrib.cheeseshop
-    ~~~~~~~~~~~~~~~~~~~~~~~~
-
-    :copyright: Copyright 2010 by Richard Jones, Georg Brandl.
-    :license: BSD, see LICENSE for details.
-"""
-
 import re
 
-from docutils import nodes, utils
+from docutils import nodes
 from docutils.parsers.rst import directives
+from docutils.utils import unescape
 
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import split_explicit_title
-from sphinx.util.compat import Directive
 
+__version__ = "0.3"
+version_info = (0, 3)
 
-RELEASE_INFO = '''\
-<div class="release_info %(class)s">%(prefix)s:
-  <a href="http://pypi.python.org/pypi/%(dist)s">latest</a></div>
-'''
+# language=HTML
+RELEASE_INFO = """\
+<div class="release_info {class_}">{prefix}:
+<a href="https://pypi.org/pypi/{dist}">latest</a>
+</div>
+"""
 
-RELEASE_SCRIPT = '''\
+# language=HTML
+RELEASE_SCRIPT = """\
 <script type="text/javascript">
   $(function() {
     $('.release_info').each(function() {
@@ -40,9 +37,10 @@ RELEASE_SCRIPT = '''\
     });
   });
 </script>
-'''
+"""
 
-class CheeseShop(Directive):
+
+class CheeseShop(SphinxDirective):
     """Directive for embedding "latest release" info in the form of a list of
     release file links.
     """
@@ -57,39 +55,42 @@ class CheeseShop(Directive):
     }
 
     def run(self):
-        env = self.state.document.settings.env
         ret = []
-        if not env.temp_data.get('cheeseshop_script_written'):
-            env.temp_data['cheeseshop_script_written'] = True
+        if not self.env.temp_data.get('cheeseshop_script_written'):
+            self.env.temp_data['cheeseshop_script_written'] = True
             ret.append(nodes.raw(RELEASE_SCRIPT, RELEASE_SCRIPT, format='html'))
         dist = self.arguments[0]
         prefix = self.options.get('prefix') or 'Download'
         class_ = self.options.get('class') or ''
-        html = RELEASE_INFO % {'dist': dist, 'prefix': prefix, 'class': class_}
+        html = RELEASE_INFO.format(dist=dist, prefix=prefix, class_=class_)
         ret.append(nodes.raw(html, html, format='html'))
         return ret
 
 
 def pypi_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     """Role for linking to PyPI packages."""
-    env = inliner.document.settings.env
-    text = utils.unescape(text)
-    has_explicit, title, target = split_explicit_title(text)
+
+    cheeseshop_url = inliner.document.settings.env.config.cheeseshop_url
+    has_explicit, title, target = split_explicit_title(unescape(text))
+
+    # See if an explicit version has been specified with
+    # "package-name (version)"
     m = re.match(r'(.*)\s+\((.*?)\)', target)
     if m:
         dist, version = m.groups()
-        url = env.config.cheeseshop_url + '/' + dist + '/' + version
-        if not has_explicit:
-            title = '%s %s' % (dist, version)
+        url = f'{cheeseshop_url}/{dist}/{version}'
+        if not has_explicit_title:
+            title = f'{dist} {version}'
     else:
-        url = env.config.cheeseshop_url + '/' + target
+        dist = target
+        url = f'{cheeseshop_url}/{dist}'
+
     ref = nodes.reference(rawtext, title, refuri=url)
     return [ref], []
 
 
 def setup(app):
-    app.require_sphinx('1.0')
+    app.require_sphinx('4.0')
     app.add_directive('pypi-release', CheeseShop)
     app.add_role('pypi', pypi_role)
-    app.add_config_value('cheeseshop_url',
-                         'http://pypi.python.org/pypi', 'html')
+    app.add_config_value('cheeseshop_url', 'https://pypi.org/pypi', 'html')
